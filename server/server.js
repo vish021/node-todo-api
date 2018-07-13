@@ -1,3 +1,4 @@
+const {ObjectId} = require('mongodb');
 var express = require('express');
 var bodyParser = require('body-parser');//take your json and convert it into an object
 
@@ -25,6 +26,23 @@ app.get('/todos', (req, res) => {
         res.send({todos});
     }, (e) => {
         res.status(400).send(e);
+    });
+});
+
+app.get('/todos/:id', (req, res) => {
+    var id = req.params.id;
+
+    if(!ObjectId.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    Todo.findById(id).then((todo) => {
+        if(!todo) {
+            return res.status(400).send();
+        }
+        res.send({todo});
+    }, (e) => {
+        res.status(400).send();
     });
 });
 
