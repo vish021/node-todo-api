@@ -1,3 +1,5 @@
+require('config/config');
+
 const {ObjectId} = require('mongodb');
 const _ = require('lodash');
 const express = require('express');
@@ -6,9 +8,7 @@ const bodyParser = require('body-parser');//take your json and convert it into a
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
-
 var app = express();
-const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());//middleware bodyParser.json() return function
 
@@ -92,8 +92,8 @@ app.patch('/todos/:id', (req, res) => {
 
 });
 
-app.listen(port, () => {
-    console.log(`Started on port ${port}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Started on port ${process.env.PORT}`);
 });
 
 module.exports = {app};
