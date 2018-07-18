@@ -4,23 +4,11 @@ const {ObjectId} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
-
-const todosDummy = [{//seed data just for testing
-    _id: new ObjectId(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectId(),
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 333
-}];
+const {todosDummy, populateTodos, usersDummy, populateUsers} = require('./seed/seed');
 
 //testing life cycle method, it runs before every single test case and make sure it's all empty
-beforeEach((done) => {
-    Todo.remove({}).then(() =>{
-        return Todo.insertMany(todosDummy);
-    }).then(() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
