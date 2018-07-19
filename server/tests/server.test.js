@@ -4,6 +4,7 @@ const {ObjectId} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+var {User} = require('./../models/user');
 const {todosDummy, populateTodos, usersDummy, populateUsers} = require('./seed/seed');
 
 //testing life cycle method, it runs before every single test case and make sure it's all empty
@@ -168,5 +169,76 @@ describe('PATCH /todos:id', () => {
             expect(res.body.todo.completedAt).toBeNull();
         })
         .end(done);
+    });
+});
+
+describe('GET /users/me', () => {
+    it('shouldr eturn user if authenticated', (done) => {
+        request(app)
+         .get('/users/me')
+         .set('x-auth', usersDummy[0].tokens[0].token)
+         .expect(200)
+         .expect((res) => {
+             expect(res.body._id).toBe(usersDummy[0]._id.toHexString());
+             expect(res.body.email).toBe(usersDummy[0].email);
+         })
+         .end(done);
+    });
+
+    it('should return 401 if not authenticated', (done) => {
+        request(app)
+         .get('/users/me')
+         .expect(401)
+         .expect((res) => {
+            expect(res.body).toEqual({});
+         })
+         .end(done);
+    });
+});
+
+describe('POST /users', () => {
+    it('should create a user', (done) => {
+        var email = 'abcrere@example.com';
+        var password = '123PSD';
+
+        request(app)
+         .post('/users')
+         .send({email, password})
+         .expect(200)
+         .expect((res) => {
+            expect(res.headers['x-auth']).toBeTruthy();
+            expect(res.body._id).toBeTruthy();
+            expect(res.body.email).toBe(email);
+         })
+         .end((err) => {
+             if(err) {
+                return done(err);
+             }
+
+             User.findOne({email}).then((user) => {
+                expect(user).toBeTruthy();
+                expect(user.password).not.toBe(password);
+                done();
+             });
+         });
+    });
+
+    it('should return validation error if request is invalid', (done) => {
+        var email = 'aaaa';
+        var password = '';
+
+        request(app)
+         .post('/users')
+         .send({email, password})
+         .expect(400)
+         .end(done);
+    });
+
+    it('should not create user if email in use', (done) => {
+        request(app)
+         .post('/users')
+         .send({email: usersDummy[0].email, password: 'abc123'})
+         .expect(400)
+         .end(done);
     });
 });
