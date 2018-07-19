@@ -9,3 +9,5 @@ if(env === 'development' || env === 'test') {
     });
 }
 //NOTE:  set JWT_SECRET env variabale in heroku with  "heroku config:set <VAR_NAME>=<VALLUE>
+//You can create a new connection in roboMongo using connection details for AWS EC2 instance
+
